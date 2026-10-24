@@ -1,0 +1,10 @@
+.Rproj.user/
+.Rhistory
+.RData
+.Rdata
+.httr-oauth
+data/
+*.html
+*_files/
+renv/library/
+renv/staging/
