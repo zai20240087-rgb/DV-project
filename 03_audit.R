@@ -82,34 +82,63 @@ flights |>
 flights |> count(Reporting_Airline, sort = TRUE) |> collect() |> print()
 cat("Origin airports:", flights |> distinct(Origin) |> collect() |> nrow(), "\n")
 
+
 # ---- Anomaly follow-ups ----
 
 # A. The 1 completed flight with no arrival data
-flights |> filter(Cancelled == 0, Diverted == 0, is.na(ArrDelay)) |> collect()
+print(flights |> filter(Cancelled == 0, Diverted == 0, is.na(ArrDelay)) |> collect())
 
 # B. The 2 flights with no scheduled elapsed time
-flights |> filter(is.na(CRSElapsedTime)) |> collect()
+print(flights |> filter(is.na(CRSElapsedTime)) |> collect())
 
-# C. Empty tail numbers: are they mostly cancelled flights?
-flights |> filter(Tail_Number == "") |> count(Cancelled, Diverted) |> collect()
+# C. Empty tail numbers: by status, carrier, month
+print(flights |> filter(Tail_Number == "") |> count(Cancelled, Diverted) |> collect())
+print(flights |> filter(Tail_Number == "") |> count(Reporting_Airline, sort = TRUE) |> collect())
+print(flights |> filter(Tail_Number == "") |> count(Month) |> collect())
 
 # D. Cancelled flights that had already departed
-flights |> filter(Cancelled == 1, !is.na(DepDelay)) |> count(CancellationCode) |> collect()
+print(flights |> filter(Cancelled == 1, !is.na(DepDelay)) |> count(CancellationCode) |> collect())
 
 # E. Extreme taxi-out times (over 5 hours)
-flights |> filter(TaxiOut > 300) |>
-  select(FlightDate, Reporting_Airline, Origin, Dest, DepDelay, TaxiOut, Cancelled, Diverted) |>
-  collect() |> print(n = 30)
+print(flights |> filter(TaxiOut > 300) |>
+        select(FlightDate, Reporting_Airline, Origin, Dest, DepDelay, TaxiOut, Cancelled, Diverted) |>
+        head(30) |> collect())
+cat("TaxiOut > 300 min:", flights |> filter(TaxiOut > 300) |> collect() |> nrow(), "\n")
 
-# F. Impossible speeds (miles per hour from Distance and AirTime)
-flights |> filter(!is.na(AirTime)) |>
+# F. Implausible speeds (mph from Distance and AirTime)
+speed <- flights |> filter(!is.na(AirTime)) |>
   mutate(mph = Distance / (AirTime / 60)) |>
   filter(mph > 650 | mph < 100) |>
-  select(FlightDate, Reporting_Airline, Origin, Dest, Distance, AirTime, mph) |>
-  collect() |> print(n = 30)
+  select(FlightDate, Reporting_Airline, Origin, Dest, Distance, AirTime, mph)
+print(speed |> head(30) |> collect())
+cat("Implausible speed flights:", speed |> collect() |> nrow(), "\n")
 
-# G. How many extreme delays are there?
-flights |> summarise(over_6h  = sum(ArrDelay > 360,  na.rm = TRUE),
-                     over_12h = sum(ArrDelay > 720,  na.rm = TRUE),
-                     over_24h = sum(ArrDelay > 1440, na.rm = TRUE)) |>
-  collect()
+# G. Extreme delays
+print(flights |> summarise(over_6h  = sum(ArrDelay > 360,  na.rm = TRUE),
+                           over_12h = sum(ArrDelay > 720,  na.rm = TRUE),
+                           over_24h = sum(ArrDelay > 1440, na.rm = TRUE)) |> collect())
+
+# H. ArrTime blanks by status
+print(flights |> mutate(arr_blank = ArrTime == "") |>
+        count(Cancelled, Diverted, arr_blank) |> collect())
+
+# I. DepTime blanks vs DepDelay NA (the 421 mismatch)
+print(flights |> mutate(dep_blank = DepTime == "", delay_na = is.na(DepDelay)) |>
+        count(Cancelled, dep_blank, delay_na) |> collect())
+print(flights |> filter(DepTime != "", is.na(DepDelay)) |>
+        select(FlightDate, Reporting_Airline, Origin, Dest, CRSDepTime, DepTime,
+               DepDelay, TaxiOut, Cancelled, CancellationCode) |>
+        head(20) |> collect())
+
+
+
+# 1. Fast-speed flights: clustered on certain dates? (daylight saving check)
+print(speed |> filter(mph > 650) |> count(FlightDate, sort = TRUE) |> head(10) |> collect())
+print(speed |> filter(mph > 650) |> collect() |> nrow())
+
+# 2. Extreme delays (12h+): concentrated on certain days or carriers?
+print(flights |> filter(ArrDelay > 720) |> count(FlightDate, sort = TRUE) |> head(10) |> collect())
+print(flights |> filter(ArrDelay > 720) |> count(Reporting_Airline, sort = TRUE) |> collect())
+
+# 3. The 421 mismatch: which carriers?
+print(flights |> filter(DepTime != "", is.na(DepDelay)) |> count(Reporting_Airline, sort = TRUE) |> collect())
