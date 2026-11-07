@@ -52,7 +52,7 @@ print(fc |> filter(FlightDate == as.Date("2025-11-29"), Cancelled == 1) |>
 print(fc |> filter(FlightDate == as.Date("2025-11-29"), Cancelled == 1) |>
         count(Origin, sort = TRUE) |> head(10) |> collect())
 
-# ---- 6. Stability check: November with vs without FAA reduction period (7–16 Nov) ----
+# ---- 6. Stability check: November with vs without FAA reduction period (7-16 Nov) ----
 nov_check <- fc |> filter(Month == 11) |>
   mutate(period = if_else(FlightDate >= as.Date("2025-11-07") &
                             FlightDate <= as.Date("2025-11-16"),
@@ -116,7 +116,7 @@ fig_b <- ggplot(reasons, aes(factor(Month, levels = 1:12, labels = month.abb), r
   labs(title = "Weather drives most cancellations, except in November",
        subtitle = "Cancellation rate by carrier-reported reason, 2025. November's peak is mostly coded as airspace system (NAS).",
        x = NULL, y = "Cancelled (share of scheduled flights)", fill = "Reported reason",
-       caption = src_caption) +
+       caption = paste(src_caption, "Security cancellations are under 0.3% in every month and not visible.")) +
   theme_group()
 ggsave("figures/fig_q1b_cancel_reasons.png", fig_b, width = 9, height = 5.5, dpi = 300)
 
@@ -124,6 +124,7 @@ ggsave("figures/fig_q1b_cancel_reasons.png", fig_b, width = 9, height = 5.5, dpi
 fig_c <- dist |>
   select(Month, Median = median, `75th percentile` = p75, `90th percentile` = p90) |>
   pivot_longer(-Month, names_to = "statistic", values_to = "minutes") |>
+  mutate(statistic = factor(statistic, levels = c("Median", "75th percentile", "90th percentile"))) |>
   ggplot(aes(Month, minutes, colour = statistic)) +
   geom_hline(yintercept = 15, linetype = "dashed", colour = "grey60") +
   geom_line() + geom_point(size = 2) +
