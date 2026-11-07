@@ -81,3 +81,43 @@ fig_c <- dist |>
        x = NULL, y = "Arrival delay (minutes)", colour = NULL, caption = src) +
   theme_minimal(base_size = 12)
 ggsave("figures/fig_q1c_delay_distribution.png", fig_c, width = 9, height = 5, dpi = 300)
+
+
+# ---- Q1 follow-ups ----
+
+# A. What caused the 29 November spike?
+print(fc |> filter(FlightDate == as.Date("2025-11-29"), Cancelled == 1) |>
+        count(cancel_reason) |> collect())
+print(fc |> filter(FlightDate == as.Date("2025-11-29"), Cancelled == 1) |>
+        count(Origin, sort = TRUE) |> head(10) |> collect())
+
+# B. Stability check 1: November without the FAA reduction period (7–16 Nov)
+nov_check <- fc |> filter(Month == 11) |>
+  mutate(period = if_else(FlightDate >= as.Date("2025-11-07") &
+                            FlightDate <= as.Date("2025-11-16"),
+                          "FAA reductions (7–16 Nov)", "Rest of November")) |>
+  group_by(period) |>
+  summarise(flights = n(), cancel_rate = mean(Cancelled),
+            late_rate = mean(ArrDel15, na.rm = TRUE)) |>
+  collect()
+print(nov_check)
+
+# C. Stability check 2: does the seasonal pattern hold for most carriers?
+by_carrier <- fc |> group_by(carrier_name, Month) |>
+  summarise(late_rate = mean(ArrDel15, na.rm = TRUE),
+            cancel_rate = mean(Cancelled)) |>
+  collect()
+
+carrier_summary <- by_carrier |> group_by(carrier_name) |>
+  summarise(
+    worst_late_month   = month.abb[Month[which.max(late_rate)]],
+    worst_cancel_month = month.abb[Month[which.max(cancel_rate)]],
+    jul_late = late_rate[Month == 7],
+    sep_late = late_rate[Month == 9],
+    summer_higher = jul_late > sep_late
+  ) |>
+  arrange(carrier_name)
+print(carrier_summary, n = 14)
+cat("Carriers with July late rate above September:",
+    sum(carrier_summary$summer_higher), "of", nrow(carrier_summary), "\n")
+print(table(carrier_summary$worst_cancel_month))
