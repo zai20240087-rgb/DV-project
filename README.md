@@ -7,9 +7,9 @@ Group project for Data Exploration and Visualisation, commissioned by OA Aviatio
 | Q | Sub-question | Owner |
 |---|---|---|
 | Q1 | How do delay and cancellation rates vary across the year? | Zaid |
-| Q2 | How do delays build up through the day, and how much is associated with late-arriving aircraft? | _Sara_ |
-| Q3 | Where are delays concentrated, and do airport differences remain after accounting for traffic volume, time of day and carrier mix? | _Nadio_ |
-| Q4 | Do carriers differ in delays and cancellations after comparing like-for-like, and do they handle disruption differently (cancel vs delay)? | _yousef_ |
+| Q2 | How do delays build up through the day, and how much is associated with late-arriving aircraft? | Sara |
+| Q3 | Where are delays concentrated, and do airport differences remain after accounting for traffic volume, time of day and carrier mix? | Nadia |
+| Q4 | Do carriers differ in delays and cancellations after comparing like-for-like, and do they handle disruption differently (cancel vs delay)? | Yousef |
 
 ---
 
