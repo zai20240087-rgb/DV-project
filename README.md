@@ -30,6 +30,11 @@ Requirements: R 4.5.x, RStudio, internet access to BTS TranStats.
 | `R/04_clean.R` | Applies audit decisions; adds derived variables and anomaly flags | `data/processed/flights_clean/` |
 | `R/05_overview.R` | Rough exploration plots used to choose the questions (not final figures) | `output/overview/` |
 | `R/06_q1_seasonal.R` | Q1 analysis, stability checks and final Q1 figures | `figures/fig_q1*.png` |
+| `R/07_q2_propagation.R` | Q2: time-of-day pattern, aircraft-rotation linking, turnaround analysis | `figures/fig_q2*.png` |
+| `R/08_q3_airports.R` | Q3: airport profile, Master Coordinate join, map, adjusted ranking | `figures/fig_q3*.png` |
+| `R/09_q4_carriers.R` | Q4: carrier profile, adjusted ranking, disruption days, regional vs mainline | `figures/fig_q4*.png` |
+
+Also download the BTS Master Coordinate table (TranStats → Aviation Support Tables → Master Coordinate → Download, all fields) into `data/raw/` before running `08_q3_airports.R`.
 
 `data/` and `output/` are not committed (see `.gitignore`); they are rebuilt from the official source files by the scripts. Raw downloaded files are never edited.
 

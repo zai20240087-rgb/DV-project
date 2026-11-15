@@ -7,7 +7,7 @@
 #         figures/fig_q3b_adjusted.png
 # Needs the 'maps' package for the US state outline: install.packages("maps")
 
-library(arrow); library(dplyr); library(tidyr); library(ggplot2)
+library(arrow); library(dplyr); library(tidyr); library(ggplot2); library(maps)
 source("R/00_theme.R")
 
 fc <- open_dataset("data/processed/flights_clean")
