@@ -103,7 +103,7 @@ fig_a <- ggplot() +
   labs(title = "Where departures leave late: size shows volume, colour shows the late rate",
        subtitle = "Airports with 10,000+ departures in 2025, contiguous US. Departed 15+ min late, share of departures.",
        size = "Departures", colour = "Departed late", x = NULL, y = NULL,
-       caption = paste(src_caption, "Airport locations: BTS Master Coordinate table. Alaska, Hawaii and territories not shown.")) +
+       caption = paste0(src_caption, "\nAirport locations: BTS Master Coordinate table. Alaska, Hawaii and territories not shown.")) +
   theme_group() +
   theme(axis.text = element_blank(), panel.grid = element_blank(),
         legend.key.width = unit(1.2, "cm"))
@@ -124,7 +124,7 @@ fig_b <- ggplot(fig_b_data, aes(y = Origin)) +
   labs(title = "After a fair comparison, ORD and DFW stay worst; BWI, MIA and CLT drop down the ranking",
        subtitle = "30 busiest origin airports, 2025, sorted by adjusted rate. Dashed line = national rate (21.8%).",
        x = "Departed 15+ min late", y = NULL, colour = NULL,
-       caption = paste(src_caption, "Adjusted = observed / expected x national rate, where expected uses national rates for the same carrier, month and scheduled hour.")) +
+       caption = paste0(src_caption, "\nAdjusted = observed / expected x national rate; expected = national rates for the same carrier, month and scheduled hour.")) +
   theme_group()
 ggsave("figures/fig_q3b_adjusted.png", fig_b, width = 9, height = 8, dpi = 300)
 

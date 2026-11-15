@@ -7,9 +7,9 @@ Group project for Data Exploration and Visualisation, commissioned by OA Aviatio
 | Q | Sub-question | Owner |
 |---|---|---|
 | Q1 | How do delay and cancellation rates vary across the year? | Zaid |
-| Q2 | How do delays build up through the day, and how much is associated with late-arriving aircraft? | _name_ |
-| Q3 | Where are delays concentrated, and do airport differences remain after accounting for traffic volume, time of day and carrier mix? | _name_ |
-| Q4 | Do carriers differ in delays and cancellations after comparing like-for-like, and do they handle disruption differently (cancel vs delay)? | _name_ |
+| Q2 | How do delays build up through the day, and how much is associated with late-arriving aircraft? | Sara |
+| Q3 | Where are delays concentrated, and do airport differences remain after accounting for traffic volume, time of day and carrier mix? | Nadia |
+| Q4 | Do carriers differ in delays and cancellations after comparing like-for-like, and do they handle disruption differently (cancel vs delay)? | Yousef |
 
 ---
 
@@ -150,9 +150,33 @@ External sources for the November FAA dates: AP, "What to know about 10% reducti
 | Exclusions | None from the dataset; the 180+ min band is reported but not interpreted (long gaps usually mean maintenance or idle periods, not a normal turnaround) |
 | Caution | Turnaround length is chosen by carriers, so buffer differences may partly reflect which carriers and airports schedule short turns |
 
-### Q3 — _to be completed by owner_ (include the Master Coordinate join: file name, download date, join key)
 
-### Q4 — _to be completed by owner_
+### Q3 — Airports (`R/08_q3_airports.R`)
+
+| Decision | Detail |
+|---|---|
+| Airport locations | BTS Master Coordinate table, `data/raw/T_MASTER_CORD_20261115_085059.zip`, downloaded 15 Nov 2026. Rows with AIRPORT_IS_LATEST = 1 (6,918 airports, one row each). Joined on OriginAirportID = AIRPORT_ID; all 352 origin airports matched |
+| Measure | Departure late rate (DepDel15) at the origin airport, so the airport is judged on its own departures, not on arrival delays from elsewhere |
+| Fair comparison (indirect standardisation) | Expected late rate = national late rate for the same carrier × month × scheduled hour, averaged over the airport's departures. Adjusted rate = observed ÷ expected × national rate (21.8%) |
+| Volume threshold | Map shows airports with ≥ 10,000 departures (103 airports, 92% of flights); ranking uses the 30 busiest airports so rates are not driven by small numbers |
+| Map | Contiguous US only (Alaska, Hawaii and territories not drawn). Point size = departures (count), colour = departure late rate (rate), as the ToR requires counts and rates to be separated. State outlines from the `maps` package |
+| Stability check | Raw monthly rank among the 30 busiest airports: DFW in the top 5 in 10 of 12 months and the top 10 in all 12; SLC never in the top 5 and last in the median month |
+| Same-carrier check | American's departure late rate compared across its hubs (DFW vs CLT, PHX, etc.) to separate an airport effect from a carrier effect |
+| Exclusions | None from the dataset |
+| Caution | Adjustment covers carrier, month and hour only; route mix, weather exposure and airport capacity are not adjusted for |
+
+### Q4 — Carriers (`R/09_q4_carriers.R`)
+
+| Decision | Detail |
+|---|---|
+| Carrier unit | Reporting (operating) carrier, 14 carriers. Regionals (OO, YX, MQ, OH) fly for mainline brands; the data do not say which brand, so they are analysed as their own carriers |
+| Measures | Arrival late rate (ArrDel15, flights that arrived); cancellation rate; diversion rate; "disrupted" = late, cancelled or diverted; share 3+ h late; 12+ h late per 10,000 flights |
+| Fair comparison (indirect standardisation) | Expected rate = national rate for the same origin airport × month × scheduled hour, averaged over the carrier's flights. Adjusted = observed ÷ expected × national rate (late 22.3%, cancelled 1.47%) |
+| Stability check | Adjusted late-rate rank recomputed for each month: Envoy in the top 3 in 10 of 12 months; Frontier and Hawaiian in the bottom 3 in 10 of 12 |
+| High-disruption days | Top 5% of days by national cancellation rate (19 days, ≥ 5.3% cancelled); carrier cancellation rate and 3+ h late share compared on these days vs all other days |
+| Regional vs mainline | Same origin airport, same day: airport-days with both regional and mainline flights, grouped by the airport-day's overall cancellation rate (< 2%, 2–10%, 10%+) |
+| Exclusions | None |
+| Cautions | Where one carrier dominates an airport (e.g. Hawaiian at Hawaii airports), its expected rate is driven partly by its own flights. Carriers record some fields differently (see audit). The data cannot show why a flight was cancelled rather than delayed, so "protecting mainline flights" is a hypothesis |
 
 ---
 
