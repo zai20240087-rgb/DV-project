@@ -1,4 +1,4 @@
-# DV-project — Airline Operational Intelligence (GroupXX)
+# DV-project — Airline Operational Intelligence (Group 1)
 
 Group project for Data Exploration and Visualisation, commissioned by OA Aviation Data Intelligence (hypothetical client).
 
