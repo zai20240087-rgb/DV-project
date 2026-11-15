@@ -7,9 +7,9 @@ Group project for Data Exploration and Visualisation, commissioned by OA Aviatio
 | Q | Sub-question | Owner |
 |---|---|---|
 | Q1 | How do delay and cancellation rates vary across the year? | Zaid |
-| Q2 | How do delays build up through the day, and how much is associated with late-arriving aircraft? | Sara |
-| Q3 | Where are delays concentrated, and do airport differences remain after accounting for traffic volume, time of day and carrier mix? | Nadia |
-| Q4 | Do carriers differ in delays and cancellations after comparing like-for-like, and do they handle disruption differently (cancel vs delay)? | Yousef |
+| Q2 | How do delays build up through the day, and how much is associated with late-arriving aircraft? | _name_ |
+| Q3 | Where are delays concentrated, and do airport differences remain after accounting for traffic volume, time of day and carrier mix? | _name_ |
+| Q4 | Do carriers differ in delays and cancellations after comparing like-for-like, and do they handle disruption differently (cancel vs delay)? | _name_ |
 
 ---
 
@@ -135,7 +135,20 @@ Flag thresholds are investigation triggers, not exclusion rules.
 
 External sources for the November FAA dates: AP, "What to know about 10% reduction in flights at US airports caused by the government shutdown" (7 Nov 2025); ABC News, "FAA lifts order slashing flights, allowing commercial airlines to resume their regular schedules" (Nov 2025).
 
-### Q2 — _to be completed by owner_
+### Q2 — Time of day and delay propagation (`R/07_q2_propagation.R`)
+
+| Decision | Detail |
+|---|---|
+| Hour of day | From scheduled departure time (`dep_hour`, local); completed flights. Hours 0–4 omitted from the figure (< 12,000 flights each) but kept in printed tables |
+| Late-aircraft share | Sum of LateAircraftDelay ÷ sum of all five cause fields, late flights only (ArrDel15 = 1). Airline-reported |
+| Aircraft linking | Completed flights with a tail number, ordered by Tail_Number, FlightDate and scheduled departure; each flight linked to the same aircraft's previous flight that day (data.table `shift`) |
+| Valid pairs | Kept only when previous Dest = next Origin, previous flight did not cross midnight, and scheduled turnaround is 1–720 min. Result: 4,993,676 pairs (73% of completed flights) |
+| Turnaround | Next scheduled departure − previous scheduled arrival, both local to the same airport, so time zones cancel out. Bands: < 45, 45–59, 60–89, 90–179, 180+ min |
+| Propagation measures | Next-flight DepDel15 rate after a late (ArrDel15 = 1) vs on-time previous arrival; share of incoming delay passed on = min(max(next DepDelay, 0) ÷ previous ArrDelay, 1), for previous ArrDelay ≥ 15 |
+| Stability check | Repeated by carrier (14) and month (12): after a late arrival 61–88% of next flights leave late vs 6–15% after an on-time arrival, in every carrier and month |
+| Not linked | Overnight rotations, aircraft swaps, cancelled/diverted flights and the 12,501 cancelled flights without a tail number |
+| Exclusions | None from the dataset; the 180+ min band is reported but not interpreted (long gaps usually mean maintenance or idle periods, not a normal turnaround) |
+| Caution | Turnaround length is chosen by carriers, so buffer differences may partly reflect which carriers and airports schedule short turns |
 
 ### Q3 — _to be completed by owner_ (include the Master Coordinate join: file name, download date, join key)
 
